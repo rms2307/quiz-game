@@ -4,9 +4,23 @@
       <h1 v-html="this.question"></h1>
 
       <template v-for="(answer, idx) in this.allAnswers" :key="idx">
-        <input type="radio" name="options" value="answer" />
+        <input
+          type="radio"
+          name="options"
+          :value="answer"
+          v-model="this.chosenAnswer"
+        />
         <label v-html="answer"></label><br />
       </template>
+
+      <button
+        @click="submitAnswer()"
+        class="send"
+        type="button"
+        :disabled="!this.chosenAnswer"
+      >
+        Send
+      </button>
     </template>
 
     <template v-else>
@@ -14,8 +28,6 @@
         <div class="loading"></div>
       </div>
     </template>
-
-    <button class="send" type="button">Send</button>
   </div>
 </template>
 
@@ -26,7 +38,8 @@ export default {
     return {
       question: undefined,
       incorrectAnswers: undefined,
-      correctAnswers: undefined,
+      correctAnswer: undefined,
+      chosenAnswer: undefined,
     }
   },
   computed: {
@@ -35,9 +48,18 @@ export default {
       allAnswers.splice(
         Math.round(Math.random() * allAnswers.length),
         0,
-        this.correctAnswers
+        this.correctAnswer
       )
       return allAnswers
+    },
+  },
+  methods: {
+    submitAnswer() {
+      if (this.chosenAnswer == this.correctAnswer) {
+        alert("You got it right!")
+      } else {
+        alert("You got it wrong!")
+      }
     },
   },
   created() {
@@ -46,7 +68,7 @@ export default {
       .then((response) => {
         (this.question = response.data.results[0].question),
           (this.incorrectAnswers = response.data.results[0].incorrect_answers),
-          (this.correctAnswers = response.data.results[0].correct_answer)
+          (this.correctAnswer = response.data.results[0].correct_answer)
       })
   },
 }
@@ -80,6 +102,13 @@ button.send {
   background-color: #1867c0;
   border: 1px solid #1867c0;
   cursor: pointer;
+}
+
+button.send:disabled {
+  background-color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 section.score {
