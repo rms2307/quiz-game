@@ -9,6 +9,12 @@
       </template>
     </template>
 
+    <template v-else>
+      <div class="loading-container">
+        <div class="loading"></div>
+      </div>
+    </template>
+
     <button class="send" type="button">Send</button>
   </div>
 </template>
@@ -85,6 +91,34 @@ section.score {
     padding: 8px;
     font-weight: bold;
     border: 1px solid black;
+  }
+}
+
+$spinner-size: 40px;
+$spinner-color: #3498db;
+$spinner-speed: 1s;
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading {
+  width: $spinner-size;
+  height: $spinner-size;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid $spinner-color;
+  border-radius: 50%;
+  animation: spin $spinner-speed linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>
