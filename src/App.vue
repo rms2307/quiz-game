@@ -1,5 +1,17 @@
 <template>
   <div>
+    <dropdown-options-game
+      @selectOption="selectCategory"
+      title="Categoria"
+      :items="this.allCategories"
+    />
+
+    <p>
+      <strong>Categoria </strong>
+      <i class="fa-solid fa-arrow-right"></i>
+      {{ this.category ? `${this.category?.name}` : "Todas" }}
+    </p>
+
     <score-board :winCount="this.winCount" :loseCount="this.loseCount" />
 
     <template v-if="this.question">
@@ -23,7 +35,7 @@
         type="button"
         :disabled="!this.chosenAnswer"
       >
-        Send
+        Enviar
       </button>
 
       <section class="result" v-if="this.answerSubmitted">
@@ -61,10 +73,12 @@
 
 <script>
 import ScoreBoard from "@/components/ScoreBoard.vue"
+import DropdownOptionsGame from "@/components/DropdownOptionsGame.vue"
 export default {
   name: "App",
   components: {
     ScoreBoard,
+    DropdownOptionsGame,
   },
   data() {
     return {
@@ -75,6 +89,9 @@ export default {
       answerSubmitted: false,
       winCount: 0,
       loseCount: 0,
+      allCategories: undefined,
+      category: undefined,
+      loadingCategory: false,
     }
   },
   computed: {
@@ -101,9 +118,9 @@ export default {
       this.answerSubmitted = false
       this.chosenAnswer = undefined
       this.question = undefined
-
+      let categoryIdParam = this.categoryId ? `&${this.category.Id}` : ""
       this.axios
-        .get("https://opentdb.com/api.php?amount=1&category=18")
+        .get(`https://opentdb.com/api.php?amount=1${categoryIdParam}`)
         .then(
           (response) => (
             (this.question = response.data.results[0].question),
@@ -113,9 +130,24 @@ export default {
           )
         )
     },
+    getAllCategories() {
+      this.loadingCategory = true
+      this.axios
+        .get("https://opentdb.com/api_category.php")
+        .then((response) => {
+          const categories = response.data.trivia_categories
+          this.allCategories = categories
+        })
+      this.loadingCategory = false
+    },
+    selectCategory(item) {
+      this.category = item
+      this.getNewQuestion()
+    },
   },
   created() {
     this.getNewQuestion()
+    this.getAllCategories()
   },
 }
 </script>
